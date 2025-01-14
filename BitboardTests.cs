@@ -53,32 +53,32 @@ namespace PrimaryUnitTests
         }
 
         /// <summary>
-        /// Tests that the SizeY is getting set properly.
+        /// Tests that the Width is getting set properly.
         /// </summary>
         [TestMethod]
-        public void Constructor_SizeX()
+        public void Constructor_Width()
         {
             // Arrange & Act
             Bitboard bb = new Bitboard(0UL, 5, 2);
 
 
             // Assert
-            Assert.AreEqual(5, bb.SizeX, $"Expected {5}, but got {bb.SizeX} instead");
+            Assert.AreEqual(5, bb.Width, $"Expected {5}, but got {bb.Width} instead");
 
         }
 
         /// <summary>
-        /// Tests that the SizeY is getting set properly.
+        /// Tests that the Height is getting set properly
         /// </summary>
         [TestMethod]
-        public void Constructor_SizeY()
+        public void Constructor_Height()
         {
             // Arrange & Act
-            Bitboard bb = new Bitboard(0UL, 5);
+            Bitboard bitboard = new Bitboard(0UL, 5);
 
 
             // Assert
-            Assert.AreEqual(5, bb.SizeY, $"Expected {5}, but got {bb.SizeY} instead");
+            Assert.AreEqual(5, bitboard.Height, $"Expected {5}, but got {bitboard.Height} instead");
 
         }
 
@@ -106,11 +106,11 @@ namespace PrimaryUnitTests
             bitboard.SetBitboardCell(0, 0, true);
 
             // Assert
-            Assert.IsTrue(bitboard.BitboardValue == 1UL, $"Expected 1 but got {bitboard.BitboardValue}");
+            Assert.IsTrue(bitboard.WallData == 1UL, $"Expected 1 but got {bitboard.WallData}");
 
             bitboard = new Bitboard(0UL, 5, 7);
             bitboard.SetBitboardCell(2, 1, true);
-            Assert.IsTrue(bitboard.BitboardValue == 128UL, $"Expected 128 but got {bitboard.BitboardValue}");
+            Assert.IsTrue(bitboard.WallData == 128UL, $"Expected 128 but got {bitboard.WallData}");
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace PrimaryUnitTests
             Bitboard bitboard = new Bitboard(0UL, 4, 7);
 
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => bitboard.GetBitboardCell(-1), "Index was less than 0, but it didn't throw an exception.");
-            Assert.ThrowsException<ArgumentOutOfRangeException>(() => bitboard.GetBitboardCell((bitboard.SizeX * bitboard.SizeY)), "Index was greater than it supposed to be, but it didn't throw an exception.");
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => bitboard.GetBitboardCell((bitboard.Width * bitboard.Height)), "Index was greater than it supposed to be, but it didn't throw an exception.");
         }
 
 
@@ -209,7 +209,7 @@ namespace PrimaryUnitTests
         [TestMethod]
         public void PrintBitboard_orientation()
         {
-            
+
             Bitboard bitboard = new Bitboard(532610UL, 5, 6);
             // Example bitboard
             // 0 1 0 0 0
@@ -247,13 +247,19 @@ namespace PrimaryUnitTests
         [TestMethod]
         public void GetInitialState_NotEnoughEmpty()
         {
-            //Bitboard bitboard = new Bitboard(0xffffffffffffffff, 8);
+            // 8x8
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(0xffffffffffffffff, 8), "Should have thrown because there is 0 empty spaces");
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(0xfffffffffffbffff, 8), "Should have thrown because there is 1 empty space");
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(0xfffffffffff3ffff, 8), "Should have thrown because there is 2 empty spaces");
+
+            // nxm
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(16777209UL, 6, 4), "Should have thrown because there is 2 empty spaces");
+
             try
             {
-                Bitboard bitboard = new Bitboard(0xfffffffff7f3ffff, 8); // Should not throw an error because there are 3 empty spaces
+                // These should not throw an error because there are 3 empty spaces
+                Bitboard bitboard = new Bitboard(0xfffffffff7f3ffff, 8);
+                bitboard = new Bitboard(16777208UL, 6, 4);
             }
             catch (Exception ex)
             {
@@ -265,193 +271,95 @@ namespace PrimaryUnitTests
         /// Makes sure Red it getting placed right.
         /// </summary>
         [TestMethod]
-        public void GetInitialState()
+        public void GetInitialState_Red()
         {
-            // Case 1 and 2 part 1 : Need to test against only the 1st part of case 2
+            // Tests red was 0
+            Bitboard bitboard = new Bitboard(0x1f4, 3);
+            // Example bitboard
+            // 0 0 1
+            // 0 1 1
+            // 1 1 1
 
-            // Example bitboard with states
-            // 1 1 R Y B 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
+            Assert.AreEqual(0, bitboard.GetState() & 0x3f, $"Expected 0, but got {bitboard.GetState() & 0x3f} instead");
 
+            // Tests red was not 0
+            bitboard = new Bitboard(0xfe8b, 4);
+            // Example bitboard
+            // 1 1 0 1
+            // 0 0 0 1
+            // 0 1 1 1
+            // 1 1 1 1
 
-
-            // Case 1 and 2 part 2 : Need to test against only the 2nd part of case 2
-            // Arrange & Act
-            Console.WriteLine("Testing case 1 and 2.");
-            Bitboard bitboard = new Bitboard(0x1f, 8); // The last 3 cells of the first row are empty.
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 1 1 1 1 R Y B
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.AreEqual(bitboard.State & 0x3f, 5, $"Red is {bitboard.State & 0x3f}, but it was supposed to be 5."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 6) & 0x3f, 6, $"Yellow is {(bitboard.State >> 6) & 0x3f}, but it was supposed to be 6."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 12) & 0x3f, 7, $"Blue is {(bitboard.State >> 12) & 0x3f}, but it was supposed to be 7."); // Masks out the other bits
+            Assert.AreEqual(2, bitboard.GetState() & 0x3f, $"Expected 2, but got {bitboard.GetState() & 0x3f} instead");
+        }
 
 
 
 
-            // Case 1 and 3
-            // Arrange & Act
-            Console.WriteLine("Testing case 1 and 3");
-            bitboard = new Bitboard(0x3f, 8); // The last 2 cells of the first row are empty.
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 1 1 1 1 1 R Y
-            // 0 0 0 0 0 0 B 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.AreEqual(bitboard.State & 0x3f, 6, $"Red is {bitboard.State & 0x3f}, but it was supposed to be 6."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 6) & 0x3f, 7, $"Yellow is {(bitboard.State >> 6) & 0x3f}, but it was supposed to be 7."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 12) & 0x3f, 14, $"Blue is {(bitboard.State >> 12) & 0x3f}, but it was supposed to be 14."); // Masks out the other bits
+        /// <summary>
+        /// Tests the output of CanMove
+        /// </summary>
+        [TestMethod]
+        public void GetInitialState_CanMove()
+        {
+            // Testing right in the middle
+            Bitboard bitboard = new Bitboard(0x1, 3);
+            // Example bitboard
+            // 1 0 0
+            // 0 0 0
+            // 0 0 0
+            int actual = bitboard.CanMove(Bitboard.Direction.Right, 1);
+            Assert.AreEqual(2, actual, $"Expected 2, but got {actual} instead");
 
 
+            // Testing right on an edge
+            bitboard = new Bitboard(0x3, 3);
+            // Example bitboard
+            // 1 1 0
+            // 0 0 0
+            // 0 0 0
+            actual = bitboard.CanMove(Bitboard.Direction.Right, 2);
+            Assert.AreEqual(0, actual, $"Expected 0, but got {actual} instead"); // We're expecting 0 here because we can't move right
 
 
-            // Case 1 and 4
-            // Arrange & Act
-            Console.WriteLine("Testing case 1 and 4");
-            bitboard = new Bitboard(0x603f, 8); // The last 2 cells of the first row are empty and the cell below the first empty cell is filled in.
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 1 1 1 1 1 R Y
-            // 0 0 0 0 0 0 1 B
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.AreEqual(bitboard.State & 0x3f, 6, $"Red is {bitboard.State & 0x3f}, but it was supposed to be 6."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 6) & 0x3f, 7, $"Yellow is {(bitboard.State >> 6) & 0x3f}, but it was supposed to be 7."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 12) & 0x3f, 15, $"Blue is {(bitboard.State >> 12) & 0x3f}, but it was supposed to be 15."); // Masks out the other bits
+            // Testing left in the middle
+            bitboard = new Bitboard(0x3, 3);
+            // Example bitboard
+            // 1 1 0
+            // 0 0 0
+            // 0 0 0
+            actual = bitboard.CanMove(Bitboard.Direction.Left, 4);
+            Assert.AreEqual(3, actual, $"Expected 3, but got {actual} instead");
 
 
+            // Testing left on the edge
+            bitboard = new Bitboard(0x3, 3);
+            // Example bitboard
+            // 1 1 0
+            // 0 0 0
+            // 0 0 0
+            actual = bitboard.CanMove(Bitboard.Direction.Left, 3);
+            Assert.AreEqual(0, actual, $"Expected 0, but got {actual} instead"); // Can't move left from index 3
 
 
-            // Case 1 and 5
-            // Arrange & Act
-            Console.WriteLine("Testing case 1 and 5");
-            bitboard = new Bitboard(0UL, 8); // Just so the output doens't look weird.
-            bitboard.PrintBitboard();
-            // Example bitboard with states (throws an exception before the states ever gets set)
-            // 1 1 1 1 1 1 0 0
-            // 0 0 0 0 0 0 1 1
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.ThrowsException<Exception>(() => new Bitboard(0xe03f, 8), $"This board should have thrown an exception. ");
+            // Testing down in the middle
+            bitboard = new Bitboard(0x3, 3);
+            // Example bitboard
+            // 1 1 0
+            // 0 0 0
+            // 0 0 0
+            actual = bitboard.CanMove(Bitboard.Direction.Down, 4);
+            Assert.AreEqual(7, actual, $"Expected 7, but got {actual} instead");
 
 
-
-
-            // Case 6 and 7
-            // Arrange & Act
-            Console.WriteLine("Testing case 6 and 7");
-            bitboard = new Bitboard(0x5, 8); // The last 2 cells of the first row are empty and the cell below the first empty cell is filled in.
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 1 1 1 1 1 R Y
-            // 0 0 0 0 0 0 1 B
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.AreEqual(bitboard.State & 0x3f, 1, $"Red is {bitboard.State & 0x3f}, but it was supposed to be 1."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 6) & 0x3f, 8, $"Yellow is {(bitboard.State >> 6) & 0x3f}, but it was supposed to be 8."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 12) & 0x3f, 9, $"Blue is {(bitboard.State >> 12) & 0x3f}, but it was supposed to be 9."); // Masks out the other bits
-
-
-
-
-            // Case 6 and 8
-            // Arrange & Act
-            Console.WriteLine("Testing case 6 and 8");
-            bitboard = new Bitboard(0x105, 8); 
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 R 1 0 0 0 0 0
-            // 1 Y B 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.AreEqual(bitboard.State & 0x3f, 1, $"Red is {bitboard.State & 0x3f}, but it was supposed to be 1."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 6) & 0x3f, 9, $"Yellow is {(bitboard.State >> 6) & 0x3f}, but it was supposed to be 9."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 12) & 0x3f, 10, $"Blue is {(bitboard.State >> 12) & 0x3f}, but it was supposed to be 10."); // Masks out the other bits
-
-
-
-
-
-            // Case 6 and 9 (nice)
-            // Arrange & Act
-            Console.WriteLine("Testing case 6 and 9");
-            bitboard = new Bitboard(0x505, 8);
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 R 1 0 0 0 0 0
-            // 1 Y 1 0 0 0 0 0
-            // 0 B 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.AreEqual(bitboard.State & 0x3f, 1, $"Red is {bitboard.State & 0x3f}, but it was supposed to be 1."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 6) & 0x3f, 9, $"Yellow is {(bitboard.State >> 6) & 0x3f}, but it was supposed to be 9."); // Masks out the other bits
-            Assert.AreEqual((bitboard.State >> 12) & 0x3f, 17, $"Blue is {(bitboard.State >> 12) & 0x3f}, but it was supposed to be 17."); // Masks out the other bits
-
-
-
-
-            // Case 6 and 10
-            // Arrange & Act
-            Console.WriteLine("Testing case 6 and 10");
-            bitboard = new Bitboard(0UL, 8); // Just so the output doens't look weird.
-            bitboard.PrintBitboard();
-            // Example bitboard with states
-            // 1 0 1 0 0 0 0 0
-            // 1 0 1 0 0 0 0 0
-            // 0 1 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-            // 0 0 0 0 0 0 0 0
-
-            Assert.ThrowsException<Exception>(() => new Bitboard(0x20505, 8), $"This board should have thrown an exception. ");
-            
-            // Don't forget to test for when 3 random non-edge connected cells are there. It should throw an exception so Assert.Execption<Name of exception>(() => ...);
+            // Testing down on the edge
+            bitboard = new Bitboard(0x3, 3);
+            // Example bitboard
+            // 1 1 0
+            // 0 0 0
+            // 0 0 0
+            actual = bitboard.CanMove(Bitboard.Direction.Down, 7);
+            Assert.AreEqual(0, actual, $"Expected 0, but got {actual} instead"); // Can't move down from index 7
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -227,6 +227,14 @@ namespace PrimaryUnitTests
             Assert.AreEqual(expectedOutput, actualOutput.Trim());
         }
 
+
+
+
+        /// <summary>
+        /// A private method used for tests that print to the console
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
         private static string CaptureConsoleOutput(Action action)
         {
 
@@ -267,8 +275,15 @@ namespace PrimaryUnitTests
             }
         }
 
+
+
+
         /// <summary>
-        /// Makes sure Red it getting placed right.
+        /// Makes sure the initial state getting set right
+        /// I need to go through and break up the parts into smaller bits
+        /// For example, sometimes we check more than one thing for each case
+        /// Those things would need their own test
+        /// It could also reveal if something is not needed
         /// </summary>
         [TestMethod]
         public void GetInitialState_Red()
@@ -360,6 +375,16 @@ namespace PrimaryUnitTests
             // 0 0 0
             actual = bitboard.CanMove(Bitboard.Direction.Down, 7);
             Assert.AreEqual(0, actual, $"Expected 0, but got {actual} instead"); // Can't move down from index 7
+        }
+
+        [TestMethod]
+        public void GetInitialState_TooFewCells()
+        {
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(0UL, 1), $"This board is only 1 by 1 and should always throw an exception.");
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(3UL, 2), $"This board is 2 by 2 but has 2 walls so it should throw an error.");
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(5UL, 2), $"This board is 2 by 2 but has 2 walls so it should throw an error.");
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(9UL, 2), $"This board is 2 by 2 but has 2 walls so it should throw an error.");
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(12UL, 2), $"This board is 2 by 2 but has 2 walls so it should throw an error.");
         }
     }
 }

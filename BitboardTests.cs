@@ -386,5 +386,21 @@ namespace PrimaryUnitTests
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(9UL, 2), $"This board is 2 by 2 but has 2 walls so it should throw an error.");
             Assert.ThrowsException<ArgumentOutOfRangeException>(() => new Bitboard(12UL, 2), $"This board is 2 by 2 but has 2 walls so it should throw an error.");
         }
+
+        [TestMethod]
+        public void PolyominoChecker()
+        {
+            // Arrange, Act, Assert
+            Assert.IsTrue (Util.PolyominoChecker(0x0), $"Expected true, but got false instead.");
+            Assert.IsTrue(Util.PolyominoChecker(0x22aaaaaa28a8aa8a), $"Expected true, but got false instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x18244242241800), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x182442), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x81422424428100), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x4224180000000000), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x102), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0xff00), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x202020202020202), $"Expected false, but got true instead.");
+            Assert.IsFalse(Util.PolyominoChecker(0x4080000000000000), $"Expected false, but got true instead.");
+        }
     }
 }
